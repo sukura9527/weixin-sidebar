@@ -1,25 +1,16 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
 import App from './App.vue'
-import router from './router'
-import store from './store'
-import { checkRedirect, initSdk } from 'wecom-sidebar-jssdk'
-import config from '@/config'
-import { fetchSignatures, fetchUserId } from '@/api'
+// import router from './router'
 
-import 'ant-design-vue/dist/antd.css'
-import { mockSdk } from '@/mock'
+// 引入 Vant
+import Vant from 'vant';
+import 'vant/lib/index.css';
 
-// 自动 Mock
-mockSdk()
+const app = createApp(App)
+app.use(Vant);
+app.use(createPinia())
+// app.use(router)
 
-Vue.config.productionTip = false
-
-checkRedirect(config, fetchUserId) // 重定向获取 code（用户身份）
-  .then(() => initSdk(config, fetchSignatures)) // 初始化 JsSdk
-  .then(() => {
-    new Vue({
-      router,
-      store,
-      render: h => h(App)
-    }).$mount('#app')
-  })
+app.mount('#app')

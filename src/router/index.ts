@@ -1,37 +1,22 @@
-import Vue from 'vue'
-import VueRouter, { RouteConfig } from 'vue-router'
-import Home from '../views/Home.vue'
-import Action from '../views/Actions.vue'
-import ExternalUser from '@/views/ExternalUser.vue'
-import ExternalChat from '@/views/ExternalChat.vue'
+// import { createRouter, createWebHistory } from 'vue-router'
+// import Customer from '@/view/Customer.vue';
+// import Sales from '@/view/Sales.vue';
+// const routes = [
+//   {
+//     path: '/Customer',
+//     name: 'Customer',
+//     component: Customer,
+//   },
+//   {
+//     path: '/Sales',
+//     name: 'Sales',
+//     component: Sales,
+//   }
+// ];
 
-Vue.use(VueRouter)
+// const router = createRouter({
+//   history: createWebHistory(),
+//   routes
+// })
 
-const routes: Array<RouteConfig> = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/actions',
-    name: 'Actions',
-    component: Action
-  },
-  {
-    path: '/external-user',
-    name: 'ExternalUser',
-    component: ExternalUser
-  },
-  {
-    path: '/external-chat',
-    name: 'ExternalChat',
-    component: ExternalChat
-  }
-]
-
-const router = new VueRouter({
-  routes
-})
-
-export default router
+// export default router
