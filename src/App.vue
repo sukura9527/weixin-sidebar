@@ -39,8 +39,9 @@ onMounted(async () => {
 </script>
 <style lang="scss">
 .container {
-  padding: 0 8px;
   width: $sidebar-width;
   height: 100vh;
+  padding: 0 8px;
+  box-sizing: border-box;
 }
 </style>

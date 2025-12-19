@@ -4,7 +4,7 @@
         <van-cell-group inset>
             <van-cell :title="props.customer.companyName" :label="props.customer.companyCode" />
             <!-- 状态按钮 -->
-            <van-cell title="状态" title-style="flex: none; width: 60px;">
+            <van-cell title-style="flex: none; width: 0px;">
                 <template #value>
                     <van-tag v-for="(statusText, index) in STATUSOPTIONS" :key="index"
                         :type="index === props.customer.status ? STATUSTYPES[props.customer.status] : 'default'"
@@ -14,7 +14,7 @@
                 </template>
             </van-cell>
             <!-- 标签 -->
-            <van-cell title="类型" title-style="flex: none; width: 60px;">
+            <van-cell title-style="flex: none; width: 0px;">
                 <van-tag v-for="type in TYPES" :key="type" :type="type === props.customer.type ? 'primary' : 'default'"
                     size="large" style="margin-right: 8px;">
                     {{ type }}
@@ -71,9 +71,8 @@
         <van-cell-group inset>
             <van-cell title="Sales Note" :value="props.customer.updatedTime" value-class="text-align-right">
             </van-cell>
-            <van-cell title-style="flex: none; width: 60px;"
-                style="border: 1px solid #eee;max-height: 200px; overflow-y: auto;"
-                :value="formatSalesNote(props.customer.salesNote)">
+            <van-cell title-style="flex: none; width: 60px;" style="border: 1px solid #eee;"
+                :value="props.customer.salesNote">
             </van-cell>
         </van-cell-group>
     </div>
@@ -144,11 +143,6 @@ const handleRefresh = () => {
     showLoadingToast('加载中...');
     // 模拟刷新操作，实际应用中可调用接口获取最新数据
     console.log(`刷新客户 ${props.customer.companyName} 的数据`);
-};
-
-// 格式化销售备注
-const formatSalesNote = (note: string) => {
-    return note.replace(/\\n/g, '\n');
 };
 </script>
 
