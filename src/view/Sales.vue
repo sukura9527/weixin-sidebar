@@ -1,18 +1,27 @@
 <template>
     <div class="sales_container">
         <van-cell-group inset>
-            <van-cell v-for="item in featureItems" :key="item.key" :title="item.title" :label="item.description" center>
-                <template #right-icon>
-                    <van-switch v-model="item.enabled" size="16" active-color="#1989fa" />
-                </template>
-            </van-cell>
-            <div class="button_group">
-                <van-button size="small" type="default" @click="resetSettings">重置</van-button>
-                <van-button size="small" type="primary" @click="saveSettings">确定</van-button>
-            </div>
+            <van-collapse v-model="activeNames" :border="false">
+                <van-collapse-item name="features">
+                    <template #title>
+                        <div class="collapse-title">功能设置</div>
+                    </template>
+                    <van-cell v-for="item in featureItems" :key="item.key" :title="item.title" :label="item.description"
+                        center :border="false">
+                        <template #right-icon>
+                            <van-switch v-model="item.enabled" size="16" active-color="#1989fa" />
+                        </template>
+                    </van-cell>
+                    <div class="button_group">
+                        <van-button size="small" type="default" @click="resetSettings">重置</van-button>
+                        <van-button size="small" type="primary" @click="saveSettings">确定</van-button>
+                    </div>
+                </van-collapse-item>
+            </van-collapse>
         </van-cell-group>
         <van-cell-group inset>
-            <van-cell v-for="item in customers" :key="item.id" :title="item.title" :label="item.companyCode" center>
+            <van-cell v-for="item in customers" :key="item.id" :title="item.title" :label="item.companyCode" center
+                :border="false">
                 <template #title>
                     <van-field v-model="item.title" placeholder="请输入" :disabled="item.isedit" />
                 </template>
@@ -21,39 +30,57 @@
                 </template>
             </van-cell>
         </van-cell-group>
-        <!-- 销售备注 -->
         <van-cell-group inset style="margin-top: 20px;">
-            <van-cell title="Sales Note" :value="note.updatedTime">
+            <!-- 客户选择 -->
+            <van-cell title="当前客户" :value="currentCostomer.title" is-link @click="showCustomerPicker = true"
+                style="font-size:14px; font-weight: bold;" />
+            <!-- 客户选择弹窗 -->
+            <van-popup v-model:show="showCustomerPicker" position="bottom">
+                <van-picker :columns="customers" :columns-field-names="{ text: 'title', value: 'id' }"
+                    @confirm="onCustomerConfirm" @cancel="showCustomerPicker = false" />
+            </van-popup>
+            <!-- 销售备注 -->
+            <van-cell title="Sales Note" :value="currentCostomer.updatedTime">
             </van-cell>
             <div class="editor_container">
                 <Toolbar :editor="editorRef" :defaultConfig="toolbarConfig" />
-                <Editor v-model="note.salesNote" :defaultConfig="editorConfig" @onCreated="handleCreated" />
+                <Editor v-model="currentCostomer.salesNote" :defaultConfig="editorConfig" @onCreated="handleCreated" />
             </div>
             <div class="button_group">
                 <van-button size="small" type="success" @click="saveOnly">仅保存</van-button>
                 <van-button size="small" type="primary" @click="saveAndUpdate">保存并更新至看板</van-button>
             </div>
-        </van-cell-group>
-        <!-- 编辑记录 -->
-        <van-cell-group inset style="margin-top: 20px;">
-            <van-cell v-for="item in note.editRecords" :key="item.id" :title="item.time" :value="`(${item.operator})`"
-                :label="item.text">
-            </van-cell>
+            <!-- 编辑记录 -->
+            <van-collapse v-model="activeRecords" :border="false">
+                <van-collapse-item name="records">
+                    <template #title>
+                        <div class="collapse-title">编辑记录</div>
+                    </template>
+                    <van-cell v-for="item in currentCostomer.editRecords" :key="item.id" :title="item.time"
+                        :value="`(${item.operator})`" :label="item.text">
+                    </van-cell>
+                </van-collapse-item>
+            </van-collapse>
         </van-cell-group>
     </div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, shallowRef, reactive } from 'vue'
+import { onBeforeUnmount, reactive, ref, shallowRef } from 'vue'
 import {
     CellGroup as VanCellGroup,
     Cell as VanCell,
     Switch as VanSwitch,
-    Button as VanButton
+    Button as VanButton,
+    Collapse as VanCollapse,
+    CollapseItem as VanCollapseItem, Popup as VanPopup, Picker as VanPicker,
 } from 'vant';
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
+// 控制折叠面板展开状态
+const activeNames = ref([]);
+const activeRecords = ref([]);
 // 功能项数据
 const featureItems = ref([
     {
@@ -88,40 +115,61 @@ const featureItems = ref([
     }
 ]);
 // 客户列表数据
-const customers = ref([
+const customers = reactive([
     {
         id: 1,
-        title: '张三',
+        title: '测试客户A',
         companyCode: 'CWX0000000058',
-        isedit: true
+        isedit: true,
+        updatedTime: '2023/07/01',
+        salesNote: '<p>测试客户A请保持联系，欢迎下次光临！</p>',
+        editRecords: [
+            { id: 1, operator: '张三', time: '2023/06/25', text: "备注内容1" },
+            { id: 2, operator: '李四', time: '2023/06/28', text: "备注内容2" },
+            { id: 3, operator: '王五', time: '2023/06/30', text: "备注内容3" }
+        ]
     },
     {
         id: 2,
-        title: '李四',
+        title: '测试客户B',
         companyCode: 'CWX0000000123',
-        isedit: true
+        isedit: true,
+        updatedTime: '2023/07/02',
+        salesNote: '<p>测试客户B请保持联系，欢迎下次光临！</p>',
+        editRecords: [
+            { id: 1, operator: '张三', time: '2023/06/25', text: "备注内容1" },
+            { id: 2, operator: '李四', time: '2023/06/28', text: "备注内容2" },
+            { id: 3, operator: '王五', time: '2023/06/30', text: "备注内容3" }
+        ]
     },
     {
         id: 3,
-        title: '王五',
+        title: '测试客户C',
         companyCode: 'CWX0000000456',
-        isedit: false
+        isedit: false,
+        updatedTime: '2023/07/03',
+        salesNote: '<p>测试客户C请保持联系，欢迎下次光临！</p>',
+        editRecords: [
+            { id: 1, operator: '张三', time: '2023/07/01', text: "备注内容1" },
+            { id: 2, operator: '李四', time: '2023/07/02', text: "备注内容2" },
+            { id: 3, operator: '王五', time: '2023/07/03', text: "备注内容3" }
+        ]
     }
 ]);
-// 销售备注数据
-const note = reactive({
-    updatedTime: '2023/07/01',
-    salesNote: '<p>请保持联系，欢迎下次光临！</p>',
-    editRecords: [
-        { id: 1, operator: '张三', time: '2023/06/25', text: "备注内容1" },
-        { id: 2, operator: '李四', time: '2023/06/28', text: "备注内容2" },
-        { id: 3, operator: '王五', time: '2023/06/30', text: "备注内容3" }
-    ]
-});
-
+// 当前选择的客户
+const currentCostomer = ref(customers[0]);
+const showCustomerPicker = ref(false);
+// 客户选择确认
+const onCustomerConfirm = ({ selectedValues }) => {
+    const selectedId = selectedValues[0];
+    const selectedCustomer = customers.find(c => c.id === selectedId);
+    if (selectedCustomer) {
+        currentCostomer.value = selectedCustomer;
+    }
+    showCustomerPicker.value = false;
+};
 // 保存初始状态用于重置
 const initialFeatureItems = JSON.parse(JSON.stringify(featureItems.value));
-
 // 重置功能
 const resetSettings = () => {
     featureItems.value = JSON.parse(JSON.stringify(initialFeatureItems));
@@ -133,13 +181,11 @@ const saveSettings = () => {
 // 仅保存
 const saveOnly = () => {
     console.log('仅保存设置:', featureItems.value);
-    console.log('销售备注内容:', note.salesNote);
 };
-
 // 保存并更新至看板
 const saveAndUpdate = () => {
     console.log('保存设置:', featureItems.value);
-    console.log('销售备注内容:', note.salesNote);
+
 };
 
 // 编辑器实例，必须用 shallowRef
@@ -178,19 +224,34 @@ const handleCreated = (editor) => {
 .sales_container {
     padding: 8px 0;
 
-    :deep(.van-cell) {
-        padding: 0;
-        font-size: 12px;
+    :deep(.van-cell-group) {
+        .van-cell {
+            padding: 0;
+            font-size: 12px;
 
-        .van-cell__label {
-            margin-top: 0;
+            .van-cell__label {
+                margin-top: 0;
+            }
+        }
+
+        .van-collapse {
+            margin-bottom: 16px;
+
+            .collapse-title {
+                font-weight: bold;
+                font-size: 14px;
+            }
+
+            .van-collapse-item__content {
+                padding: 0 8px;
+            }
         }
     }
 
     .button_group {
         display: flex;
         justify-content: flex-end;
-        margin: 16px 0;
+        margin: 8px 0;
 
         .van-button {
             margin: 0 8px;

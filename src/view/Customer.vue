@@ -6,7 +6,7 @@
             <!-- 状态按钮 -->
             <van-cell title-style="flex: none; width: 0px;">
                 <template #value>
-                    <van-tag v-for="(statusText, index) in STATUSOPTIONS" :key="index"
+                    <van-tag v-for="(statusText, index) in STATUSOPTIONS" :key="index" plain
                         :type="index === props.customer.status ? STATUSTYPES[props.customer.status] : 'default'"
                         size="large" style="margin-right: 8px;">
                         {{ statusText }}
@@ -15,8 +15,9 @@
             </van-cell>
             <!-- 标签 -->
             <van-cell title-style="flex: none; width: 0px;">
-                <van-tag v-for="type in TYPES" :key="type" :type="type === props.customer.type ? 'primary' : 'default'"
-                    size="large" style="margin-right: 8px;">
+                <van-tag v-for="type in TYPES" :key="type" plain
+                    :type="type === props.customer.type ? 'primary' : 'default'" size="large"
+                    style="margin-right: 8px;">
                     {{ type }}
                 </van-tag>
             </van-cell>
@@ -27,18 +28,20 @@
                 style="position: absolute; top: 10px; right: 10px; z-index: 999;font-size: 18px; color: #1989fa;" />
             <van-cell title-style="flex: none; width: 0px;">
                 <table style="width: 100%; font-size: 14px;text-align: left;">
-                    <tr>
-                        <td>日内授信: {{ props.customer.dailyCredit }}w</td>
-                        <td>长期授信: {{ props.customer.longTermCredit }}w</td>
-                    </tr>
-                    <tr>
-                        <td>香草额度: {{ props.customer.vanillaQuota }}w</td>
-                        <td>可出资金: {{ props.customer.availableFunds.toFixed(2) }} </td>
-                    </tr>
-                    <tr>
-                        <td>雪球额度: {{ props.customer.snowballQuota }}w</td>
-                        <td>T-1追保: {{ props.customer.t1MarginCall }}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>日内授信: {{ props.customer.dailyCredit }}w</td>
+                            <td>长期授信: {{ props.customer.longTermCredit }}w</td>
+                        </tr>
+                        <tr>
+                            <td>香草额度: {{ props.customer.vanillaQuota }}w</td>
+                            <td>可出资金: {{ props.customer.availableFunds.toFixed(2) }} </td>
+                        </tr>
+                        <tr>
+                            <td>雪球额度: {{ props.customer.snowballQuota }}w</td>
+                            <td>T-1追保: {{ props.customer.t1MarginCall }}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </van-cell>
         </van-cell-group>
@@ -82,7 +85,8 @@
 import {
     CellGroup as VanCellGroup,
     Cell as VanCell,
-    Tag as VanTag
+    Tag as VanTag,
+    Icon as VanIcon
 } from 'vant';
 import { showLoadingToast, closeToast } from 'vant';
 
@@ -143,6 +147,11 @@ const handleRefresh = () => {
     showLoadingToast('加载中...');
     // 模拟刷新操作，实际应用中可调用接口获取最新数据
     console.log(`刷新客户 ${props.customer.companyName} 的数据`);
+
+    // 模拟异步操作
+    setTimeout(() => {
+        closeToast();
+    }, 1000);
 };
 </script>
 
@@ -155,6 +164,5 @@ const handleRefresh = () => {
     :deep(.text-align-right) {
         text-align: right;
     }
-
 }
 </style>
