@@ -196,7 +196,6 @@ const deleteCustomer = (item: any) => {
         });
         return;
     }
-
     showConfirmDialog({
         title: '确认删除',
         message: `确定要删除客户 "${item.title}" 吗？`,
@@ -313,15 +312,16 @@ const saveAndUpdate = () => saveCustomerData(true);
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef();
 
-// 工具栏配置 - 只保留颜色、加粗和下划线功能
+// 工具栏配置
 const toolbarConfig = {
     toolbarKeys: [
+        'headerSelect',
+        'lineHeight',
+        'fontSize',
         'bold',
         'underline',
-        '|',
         'color',
         'bgColor',
-        '|',
         'undo',
         'redo'
     ]
@@ -382,7 +382,7 @@ const handleCreated = (editor: any) => {
     }
 
     .editor_container {
-        height: 200px;
+        height: 340px;
         border: 1px solid #e5e5e5;
         border-radius: 4px;
         overflow: hidden;
