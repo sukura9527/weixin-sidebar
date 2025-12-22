@@ -32,7 +32,13 @@ export const mockCustomers = [
             }
         },
         salesNote: '#关联主体:\nXXXXXX\nYYYYyy\n#跨境费率:\nLME铜 8bp',
-        updatedTime: '2025/11/11'
+        updatedTime: '2025/11/11',
+        isshow: true,
+        editRecords: [
+            { id: 1, operator: '张三', time: '2023/06/25', text: "备注内容1" },
+            { id: 2, operator: '李四', time: '2023/06/28', text: "备注内容2" },
+            { id: 3, operator: '王五', time: '2023/06/30', text: "备注内容3" }
+        ]
     },
     {
         id: 'CWX0000000057',
@@ -66,7 +72,12 @@ export const mockCustomers = [
             }
         },
         salesNote: '#关联主体:\nZZZZZZZZZZ\nWWWWWWWW\n#跨境费率:\nLME铝 10bp',
-        updatedTime: '2025/11/10'
+        updatedTime: '2025/11/10',
+        isshow: false,
+        editRecords: [
+            { id: 1, operator: '赵六', time: '2023/07/01', text: "备注内容A" },
+            { id: 2, operator: '钱七', time: '2023/07/03', text: "备注内容B" }
+        ]
     },
     {
         id: 'CWX0000000058',
@@ -100,7 +111,12 @@ export const mockCustomers = [
             }
         },
         salesNote: '#关联主体:\nAAAAAAA\nBBBBBBB\n#跨境费率:\nLME铜 9bp',
-        updatedTime: '2025/11/09'
+        updatedTime: '2025/11/09',
+        isshow: false,
+        editRecords: [
+            { id: 1, operator: '赵六', time: '2023/07/01', text: "备注内容A" },
+            { id: 2, operator: '钱七', time: '2023/07/03', text: "备注内容B" }
+        ],
     }
 ];
 

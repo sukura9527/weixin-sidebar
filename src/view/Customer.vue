@@ -74,8 +74,10 @@
         <van-cell-group inset>
             <van-cell title="Sales Note" :value="props.customer.updatedTime" value-class="text-align-right">
             </van-cell>
-            <van-cell title-style="flex: none; width: 60px;" style="border: 1px solid #eee;"
-                :value="props.customer.salesNote">
+            <van-cell title-style="flex: none; width: 0px;" style="border: 1px solid #eee;">
+                <template #value>
+                    <div v-html="props.customer.salesNote"></div>
+                </template>
             </van-cell>
         </van-cell-group>
     </div>

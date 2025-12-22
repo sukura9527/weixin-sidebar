@@ -20,13 +20,15 @@
             </van-collapse>
         </van-cell-group>
         <van-cell-group inset>
-            <van-cell v-for="item in customers" :key="item.id" :title="item.title" :label="item.companyCode" center
+            <van-cell v-for="item in localCustomers" :key="item.id" :title="item.title" :label="item.companyCode" center
                 :border="false">
                 <template #title>
-                    <van-field v-model="item.title" placeholder="请输入" :disabled="item.isedit" />
+                    <!-- 失焦保存 -->
+                    <van-field v-model="item.title" placeholder="请输入" @blur="saveCustomerTitle(item)" />
                 </template>
                 <template #right-icon>
-                    <van-switch v-model="item.isedit" size="16" active-color="#1989fa" />
+                    <van-switch v-model="item.isshow" size="16" active-color="#1989fa"
+                        @change="saveCustomerShow(item)" />
                     <van-icon name="minus" color="#F5222D" size="16" style="margin-left: 32px;"
                         @click="deleteCustomer(item)" />
                 </template>
@@ -35,12 +37,13 @@
         </van-cell-group>
         <van-cell-group inset style="margin-top: 20px;">
             <!-- 客户选择 -->
-            <van-cell title="当前客户" :value="currentCostomer.title" is-link @click="showCustomerPicker = true"
+            <van-cell title="当前客户" :value="currentCostomer.title || '未选择客户'" is-link @click="showCustomerPicker = true"
                 style="font-size:14px; font-weight: bold;" />
-            <!-- 客户选择弹窗 -->
+            <!-- 客户选择弹窗 只显示可见客户 -->
             <van-popup v-model:show="showCustomerPicker" position="bottom">
-                <van-picker :columns="customers" :columns-field-names="{ text: 'title', value: 'id' }"
-                    @confirm="onCustomerConfirm" @cancel="showCustomerPicker = false" />
+                <van-picker :columns="localCustomers.filter(c => c.isshow)"
+                    :columns-field-names="{ text: 'title', value: 'id' }" @confirm="onCustomerConfirm"
+                    @cancel="showCustomerPicker = false" />
             </van-popup>
             <!-- 销售备注 -->
             <van-cell title="Sales Note" :value="currentCostomer.updatedTime">
@@ -67,18 +70,28 @@
         </van-cell-group>
     </div>
 </template>
-
 <script setup lang="ts">
-import { onBeforeUnmount, reactive, ref, shallowRef } from 'vue'
-import { showToast, closeToast } from 'vant';
+import { onBeforeUnmount, ref, shallowRef, computed, watch } from 'vue'
+import { showToast, showConfirmDialog } from 'vant';
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
+// 定义 props，接收外部传入的 customers 数据
+const props = defineProps<{
+    customers: any[];
+}>();
+
+// 定义 emit，用于向父组件传递数据变化
+const emit = defineEmits<{
+    (e: 'update:customers', customers: any[]): void;
+}>();
+
 // 控制折叠面板展开状态
-const activeNames = ref([]);
-const activeRecords = ref([]);
+const activeNames = ref<string[]>([]);
+const activeRecords = ref<string[]>([]);
+
 // 功能项数据
-const featureItems = ref([
+const featureItems = ref<any[]>([
     {
         key: 'autoReply',
         title: '自动回复',
@@ -110,89 +123,132 @@ const featureItems = ref([
         enabled: true
     }
 ]);
+
+// 使用计算属性创建可修改的 customers 副本
+const localCustomers = ref<any[]>([]);
+// 当前选择的客户
+const currentCostomer = ref<any | null>(null);
+// 初始化当前客户
+if (localCustomers.value.length > 0) {
+    currentCostomer.value = localCustomers.value[0];
+}
+const showCustomerPicker = ref(false);
+// 监听 props.customers 的变化，同步更新本地副本
+watch(
+    () => props.customers,
+    (newCustomers) => {
+        localCustomers.value = JSON.parse(JSON.stringify(newCustomers)); // 深拷贝避免引用问题
+        // 更新当前客户引用
+        if (localCustomers.value.length > 0 && !currentCostomer.value) {
+            currentCostomer.value = localCustomers.value[0];
+        }
+    },
+    { immediate: true, deep: true }
+);
+// 保存客户标题更改
+const saveCustomerTitle = (item: any) => {
+    const customer = localCustomers.value.find(c => c.id === item.id);
+    if (customer) {
+        customer.title = item.title;
+        // 通知父组件数据变更
+        emit('update:customers', localCustomers.value);
+        showToast({
+            type: 'success',
+            message: '客户标题已保存',
+        });
+    }
+};
+const saveCustomerShow = (item: any) => {
+    const customer = localCustomers.value.find(c => c.id === item.id);
+    if (customer) {
+        customer.isshow = item.isshow;
+        // 通知父组件数据变更
+        emit('update:customers', localCustomers.value);
+        showToast({
+            type: 'success',
+            message: '客户可见性已保存',
+        });
+    }
+};
 // 新增客户
 const addCustomer = () => {
-    const newId = Math.max(...customers.map(c => c.id)) + 1;
-    const newCustomer = {
+    const newId = Date.now() + Math.floor(Math.random() * 1000);
+    const newCustomer: any = {
         id: newId,
         title: '新客户',
         companyCode: 'CWX' + String(newId).padStart(10, '0'),
-        isedit: true,
+        isshow: true,
         updatedTime: new Date().toLocaleDateString('zh-CN').replace(/\//g, '/'),
         salesNote: '<p>请保持联系，欢迎下次光临！</p>',
         editRecords: []
     };
-    customers.push(newCustomer);
+    localCustomers.value.push(newCustomer);
     currentCostomer.value = newCustomer;
+    // 通知父组件数据变更
+    emit('update:customers', localCustomers.value);
 };
 // 删除当前客户
 const deleteCustomer = (item: any) => {
-    if (customers.length <= 1) {
+    if (localCustomers.value.length <= 1) {
+        showToast({
+            type: 'fail',
+            message: '至少保留一个客户',
+        });
         return;
     }
-    const currentIndex = customers.findIndex(c => c.id === currentCostomer.value.id);
-    if (currentIndex !== -1) {
-        customers.splice(currentIndex, 1);
-        // 设置新的当前客户为第一个客户
-        currentCostomer.value = customers[0];
-    }
+
+    showConfirmDialog({
+        title: '确认删除',
+        message: `确定要删除客户 "${item.title}" 吗？`,
+        showCancelButton: true,
+    }).then(() => {
+        const currentIndex = localCustomers.value.findIndex(c => c.id === item.id);
+        if (currentIndex !== -1) {
+            localCustomers.value.splice(currentIndex, 1);
+
+            // 如果删除的是当前客户，切换到下一个客户或者上一个客户
+            if (currentCostomer.value?.id === item.id) {
+                if (localCustomers.value.length > currentIndex) {
+                    // 优先选择下一个客户
+                    currentCostomer.value = localCustomers.value[currentIndex];
+                } else if (localCustomers.value.length > 0) {
+                    // 如果没有下一个客户，选择最后一个客户
+                    currentCostomer.value = localCustomers.value[localCustomers.value.length - 1];
+                } else {
+                    // 没有剩余客户
+                    currentCostomer.value = null;
+                }
+            }
+
+            emit('update:customers', localCustomers.value);
+            showToast({ type: 'success', message: '删除成功' });
+        }
+    }).catch(() => {
+        // 用户取消删除
+    });
 };
-// 客户列表数据
-const customers = reactive([
-    {
-        id: 1,
-        title: '测试客户A',
-        companyCode: 'CWX0000000058',
-        isedit: true,
-        updatedTime: '2023/07/01',
-        salesNote: '<p>测试客户A请保持联系，欢迎下次光临！</p>',
-        editRecords: [
-            { id: 1, operator: '张三', time: '2023/06/25', text: "备注内容1" },
-            { id: 2, operator: '李四', time: '2023/06/28', text: "备注内容2" },
-            { id: 3, operator: '王五', time: '2023/06/30', text: "备注内容3" }
-        ]
-    },
-    {
-        id: 2,
-        title: '测试客户B',
-        companyCode: 'CWX0000000123',
-        isedit: true,
-        updatedTime: '2023/07/02',
-        salesNote: '<p>测试客户B请保持联系，欢迎下次光临！</p>',
-        editRecords: [
-            { id: 1, operator: '张三', time: '2023/06/25', text: "备注内容1" },
-            { id: 2, operator: '李四', time: '2023/06/28', text: "备注内容2" },
-            { id: 3, operator: '王五', time: '2023/06/30', text: "备注内容3" }
-        ]
-    },
-    {
-        id: 3,
-        title: '测试客户C',
-        companyCode: 'CWX0000000456',
-        isedit: false,
-        updatedTime: '2023/07/03',
-        salesNote: '<p>测试客户C请保持联系，欢迎下次光临！</p>',
-        editRecords: [
-            { id: 1, operator: '张三', time: '2023/07/01', text: "备注内容1" },
-            { id: 2, operator: '李四', time: '2023/07/02', text: "备注内容2" },
-            { id: 3, operator: '王五', time: '2023/07/03', text: "备注内容3" }
-        ]
-    }
-]);
-// 当前选择的客户
-const currentCostomer = ref(customers[0]);
-const showCustomerPicker = ref(false);
 // 客户选择确认
-const onCustomerConfirm = ({ selectedValues }) => {
+const onCustomerConfirm = ({ selectedValues }: { selectedValues: (number | string)[] }) => {
     const selectedId = selectedValues[0];
-    const selectedCustomer = customers.find(c => c.id === selectedId);
+    // 只查找可见客户
+    const selectedCustomer = localCustomers.value
+        .filter(c => c.isshow)
+        .find(c => c.id === selectedId);
+
     if (selectedCustomer) {
         currentCostomer.value = selectedCustomer;
+    } else {
+        showToast({
+            type: 'fail',
+            message: '选择的客户不可用'
+        });
     }
     showCustomerPicker.value = false;
 };
+
 // 保存初始状态用于重置
 const initialFeatureItems = JSON.parse(JSON.stringify(featureItems.value));
+
 // 重置功能
 const resetSettings = () => {
     featureItems.value = JSON.parse(JSON.stringify(initialFeatureItems));
@@ -201,6 +257,7 @@ const resetSettings = () => {
         message: '设置已重置',
     });
 };
+
 // 保存功能
 const saveSettings = () => {
     showToast({
@@ -208,23 +265,53 @@ const saveSettings = () => {
         message: '设置已保存',
     });
 };
-// 仅保存
-const saveOnly = () => {
-    showToast({
-        type: 'success',
-        message: '备注已保存',
+
+// 统一的保存方法
+const saveCustomerData = (updateToBoard = false) => {
+    if (!currentCostomer.value) return;
+
+    const now = new Date();
+    const timeString = `${now.getFullYear()}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}`;
+    const operator = '当前用户'; // 应从全局状态获取
+
+    // 添加编辑记录
+    currentCostomer.value.editRecords.unshift({
+        id: Date.now(), // 使用时间戳作为唯一ID更可靠
+        operator: operator,
+        time: timeString,
+        text: currentCostomer.value.salesNote
     });
-};
-// 保存并更新至看板
-const saveAndUpdate = () => {
-    showToast({
-        type: 'success',
-        message: '备注已保存并更新至看板',
-    });
+
+    // 限制编辑记录数量
+    if (currentCostomer.value.editRecords.length > 10) {
+        currentCostomer.value.editRecords = currentCostomer.value.editRecords.slice(0, 10);
+    }
+
+    // 更新时间
+    currentCostomer.value.updatedTime = timeString;
+
+    // 如果需要更新到看板，则通知父组件
+    if (updateToBoard) {
+        emit('update:customers', [...localCustomers.value]);
+        showToast({
+            type: 'success',
+            message: '备注已保存并更新至看板',
+        });
+    } else {
+        showToast({
+            type: 'success',
+            message: '备注已保存',
+        });
+    }
 };
 
+// 仅保存
+const saveOnly = () => saveCustomerData(false);
+// 保存并更新
+const saveAndUpdate = () => saveCustomerData(true);
+
 // 编辑器实例，必须用 shallowRef
-const editorRef = shallowRef()
+const editorRef = shallowRef();
 
 // 工具栏配置 - 只保留颜色、加粗和下划线功能
 const toolbarConfig = {
@@ -238,21 +325,21 @@ const toolbarConfig = {
         'undo',
         'redo'
     ]
-}
+};
 
 // 编辑器配置
-const editorConfig = { placeholder: '请输入内容...' }
+const editorConfig = { placeholder: '请输入内容...' };
 
 // 组件销毁时，也及时销毁编辑器
 onBeforeUnmount(() => {
-    const editor = editorRef.value
-    if (editor == null) return
-    editor.destroy()
-})
+    const editor = editorRef.value;
+    if (editor == null) return;
+    editor.destroy();
+});
 
-const handleCreated = (editor) => {
-    editorRef.value = editor
-}
+const handleCreated = (editor: any) => {
+    editorRef.value = editor;
+};
 </script>
 
 <style scoped lang="scss">
