@@ -86,9 +86,9 @@ import {
     CellGroup as VanCellGroup,
     Cell as VanCell,
     Tag as VanTag,
-    Icon as VanIcon
+    Icon as VanIcon,
 } from 'vant';
-import { showLoadingToast, closeToast } from 'vant';
+import { showToast, closeToast } from 'vant';
 
 // 定义 props 接收父组件传递的 customer 数据
 const props = defineProps<{
@@ -144,10 +144,13 @@ const STATUSOPTIONS = ['正常', '暂停交易', '休眠', '销户'];
 const TYPES = ['商品', '权益互换', '权益期权'];
 
 const handleRefresh = () => {
-    showLoadingToast('加载中...');
+    showToast({
+        type: 'loading',
+        message: `正在刷新客户数据...`,
+        duration: 0,
+    });
     // 模拟刷新操作，实际应用中可调用接口获取最新数据
-    console.log(`刷新客户 ${props.customer.companyName} 的数据`);
-
+    console.log(`刷新客户的数据`);
     // 模拟异步操作
     setTimeout(() => {
         closeToast();

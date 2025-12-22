@@ -18,6 +18,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { showToast, closeToast } from 'vant';
 import { fetchCustomers } from '@/utils/mockData';
 import Customer from '@/view/Customer.vue';
 import Sales from '@/view/Sales.vue';
@@ -28,12 +29,21 @@ const loading = ref(true);
 
 onMounted(async () => {
   try {
+    showToast({
+      type: 'loading',
+      message: '加载客户数据中...',
+      duration: 0,
+    });
     customers.value = await fetchCustomers();
     activeTab.value = customers?.value[0].id;
   } catch (error) {
-    console.error('获取客户数据失败:', error);
+    showToast({
+      type: 'fail',
+      message: '加载客户数据失败，请重试。',
+    });
   } finally {
     loading.value = false;
+    closeToast();
   }
 });
 </script>

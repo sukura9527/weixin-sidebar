@@ -79,6 +79,7 @@ import {
     CollapseItem as VanCollapseItem, Popup as VanPopup, Picker as VanPicker,
     Icon as VanIcon
 } from 'vant';
+import { showToast, closeToast } from 'vant';
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
@@ -204,19 +205,31 @@ const initialFeatureItems = JSON.parse(JSON.stringify(featureItems.value));
 // 重置功能
 const resetSettings = () => {
     featureItems.value = JSON.parse(JSON.stringify(initialFeatureItems));
+    showToast({
+        type: 'success',
+        message: '设置已重置',
+    });
 };
 // 保存功能
 const saveSettings = () => {
-    console.log('保存设置:', featureItems.value);
+    showToast({
+        type: 'success',
+        message: '设置已保存',
+    });
 };
 // 仅保存
 const saveOnly = () => {
-    console.log('仅保存设置:', featureItems.value);
+    showToast({
+        type: 'success',
+        message: '备注已保存',
+    });
 };
 // 保存并更新至看板
 const saveAndUpdate = () => {
-    console.log('保存设置:', featureItems.value);
-
+    showToast({
+        type: 'success',
+        message: '备注已保存并更新至看板',
+    });
 };
 
 // 编辑器实例，必须用 shallowRef
