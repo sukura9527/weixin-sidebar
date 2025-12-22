@@ -70,15 +70,6 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, reactive, ref, shallowRef } from 'vue'
-import {
-    CellGroup as VanCellGroup,
-    Cell as VanCell,
-    Switch as VanSwitch,
-    Button as VanButton,
-    Collapse as VanCollapse,
-    CollapseItem as VanCollapseItem, Popup as VanPopup, Picker as VanPicker,
-    Icon as VanIcon
-} from 'vant';
 import { showToast, closeToast } from 'vant';
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'

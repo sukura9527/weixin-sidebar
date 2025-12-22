@@ -82,12 +82,6 @@
 </template>
 
 <script setup lang="ts">
-import {
-    CellGroup as VanCellGroup,
-    Cell as VanCell,
-    Tag as VanTag,
-    Icon as VanIcon,
-} from 'vant';
 import { showToast, closeToast } from 'vant';
 
 // 定义 props 接收父组件传递的 customer 数据
