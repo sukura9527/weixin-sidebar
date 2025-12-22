@@ -27,8 +27,11 @@
                 </template>
                 <template #right-icon>
                     <van-switch v-model="item.isedit" size="16" active-color="#1989fa" />
+                    <van-icon name="minus" color="#F5222D" size="16" style="margin-left: 32px;"
+                        @click="deleteCustomer(item)" />
                 </template>
             </van-cell>
+            <van-icon name="plus" color="#34C759" size="16" style="margin-top: 16px;" @click="addCustomer" />
         </van-cell-group>
         <van-cell-group inset style="margin-top: 20px;">
             <!-- 客户选择 -->
@@ -74,6 +77,7 @@ import {
     Button as VanButton,
     Collapse as VanCollapse,
     CollapseItem as VanCollapseItem, Popup as VanPopup, Picker as VanPicker,
+    Icon as VanIcon
 } from 'vant';
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
@@ -114,6 +118,33 @@ const featureItems = ref([
         enabled: true
     }
 ]);
+// 新增客户
+const addCustomer = () => {
+    const newId = Math.max(...customers.map(c => c.id)) + 1;
+    const newCustomer = {
+        id: newId,
+        title: '新客户',
+        companyCode: 'CWX' + String(newId).padStart(10, '0'),
+        isedit: true,
+        updatedTime: new Date().toLocaleDateString('zh-CN').replace(/\//g, '/'),
+        salesNote: '<p>请保持联系，欢迎下次光临！</p>',
+        editRecords: []
+    };
+    customers.push(newCustomer);
+    currentCostomer.value = newCustomer;
+};
+// 删除当前客户
+const deleteCustomer = (item: any) => {
+    if (customers.length <= 1) {
+        return;
+    }
+    const currentIndex = customers.findIndex(c => c.id === currentCostomer.value.id);
+    if (currentIndex !== -1) {
+        customers.splice(currentIndex, 1);
+        // 设置新的当前客户为第一个客户
+        currentCostomer.value = customers[0];
+    }
+};
 // 客户列表数据
 const customers = reactive([
     {
