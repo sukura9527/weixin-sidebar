@@ -25,9 +25,9 @@
         <!-- 额度信息 -->
         <van-cell-group inset style="border: 1px solid #eee;position: relative;">
             <van-icon name="replay" @click="handleRefresh"
-                style="position: absolute; top: 10px; right: 10px; z-index: 999;font-size: 18px; color: #1989fa;" />
+                style="position: absolute; top: 10px; right: 10px; z-index: 999; color: #1989fa;" />
             <van-cell title-style="flex: none; width: 0px;">
-                <table style="width: 100%; font-size: 14px;text-align: left;">
+                <table style="width: 100%;text-align: left;">
                     <tbody>
                         <tr>
                             <td>日内授信: {{ props.customer.dailyCredit }}w</td>
@@ -50,7 +50,7 @@
             <van-cell title-style="flex: none; width: 0px;">
                 <van-tag v-for="trader in props.customer.traders" :key="trader.id"
                     :plain="!trader.realName || (trader.realName && !trader.verified)"
-                    :type="trader.realName ? 'success' : 'default'" size="medium" style="margin-right: 8px;">
+                    :type="trader.realName ? 'success' : 'default'" size="large" style="margin-right: 8px;">
                     {{ trader.name }}
                 </van-tag>
             </van-cell>
@@ -156,6 +156,8 @@ const handleRefresh = () => {
 
 <style lang="scss" scoped>
 .customer_page {
+
+    // 公共单元格值样式
     :deep(.van-cell__value) {
         text-align: left;
     }

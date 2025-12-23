@@ -20,11 +20,13 @@
             </van-collapse>
         </van-cell-group>
         <van-cell-group inset>
-            <van-cell v-for="item in localCustomers" :key="item.id" :title="item.title" :label="item.companyCode" center
-                :border="false">
+            <van-cell v-for="item in localCustomers" :key="item.id" center :border="false">
                 <template #title>
                     <!-- 失焦保存 -->
                     <van-field v-model="item.title" placeholder="请输入" @blur="saveCustomerTitle(item)" />
+                </template>
+                <template #label>
+                    <van-field v-model="item.companyCode" placeholder="请输入" @blur="saveCustomerCode(item)" />
                 </template>
                 <template #right-icon>
                     <van-switch v-model="item.isshow" size="16" active-color="#1989fa"
@@ -38,7 +40,7 @@
         <van-cell-group inset style="margin-top: 20px;">
             <!-- 客户选择 -->
             <van-cell title="当前客户" :value="currentCostomer.title || '未选择客户'" is-link @click="showCustomerPicker = true"
-                style="font-size:14px; font-weight: bold;" />
+                style=" font-weight: bold;" />
             <!-- 客户选择弹窗 只显示可见客户 -->
             <van-popup v-model:show="showCustomerPicker" position="bottom">
                 <van-picker :columns="localCustomers.filter(c => c.isshow)"
@@ -155,6 +157,18 @@ const saveCustomerTitle = (item: any) => {
         showToast({
             type: 'success',
             message: '客户标题已保存',
+        });
+    }
+};
+const saveCustomerCode = (item: any) => {
+    const customer = localCustomers.value.find(c => c.id === item.id);
+    if (customer) {
+        customer.companyCode = item.companyCode;
+        // 通知父组件数据变更
+        emit('update:customers', localCustomers.value);
+        showToast({
+            type: 'success',
+            message: '公司编号已保存',
         });
     }
 };
@@ -328,7 +342,9 @@ const toolbarConfig = {
 };
 
 // 编辑器配置
-const editorConfig = { placeholder: '请输入内容...' };
+const editorConfig = {
+    placeholder: '请输入内容...',
+};
 
 // 组件销毁时，也及时销毁编辑器
 onBeforeUnmount(() => {
@@ -349,7 +365,6 @@ const handleCreated = (editor: any) => {
     :deep(.van-cell-group) {
         .van-cell {
             padding: 0;
-            font-size: 12px;
 
             .van-cell__label {
                 margin-top: 0;
@@ -361,7 +376,7 @@ const handleCreated = (editor: any) => {
 
             .collapse-title {
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 16px;
             }
 
             .van-collapse-item__content {
@@ -389,10 +404,18 @@ const handleCreated = (editor: any) => {
 
         :deep(.w-e-toolbar) {
             border-bottom: 1px solid #e5e5e5;
+
+            .w-e-bar-item {
+                padding: 0;
+            }
         }
 
         :deep(.w-e-text-container) {
             height: calc(100% - 40px);
+
+            p {
+                margin: 0;
+            }
         }
     }
 }

@@ -56,7 +56,6 @@ onMounted(async () => {
 .container {
   width: $sidebar-width;
   height: 100vh;
-  padding: 0 8px;
   box-sizing: border-box;
 
   .loading_container {
@@ -64,6 +63,20 @@ onMounted(async () => {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  // 全局样式覆盖
+  .van-cell {
+    font-size: 16px;
+
+    .van-cell__label {
+      font-size: 14px;
+    }
+  }
+
+  // 公共cell组样式
+  .van-cell-group--inset {
+    border-radius: 8px;
   }
 }
 </style>
