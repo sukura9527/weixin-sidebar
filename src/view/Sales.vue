@@ -55,8 +55,8 @@
                 <Editor v-model="currentCostomer.salesNote" :defaultConfig="editorConfig" @onCreated="handleCreated" />
             </div>
             <div class="button_group">
-                <van-button size="small" type="success" @click="saveOnly">仅保存</van-button>
-                <van-button size="small" type="primary" @click="saveAndUpdate">保存并更新至看板</van-button>
+                <van-button size="normal" type="success" @click="saveOnly">仅保存</van-button>
+                <van-button size="normal" type="primary" @click="saveAndUpdate">保存并更新至看板</van-button>
             </div>
             <!-- 编辑记录 -->
             <van-collapse v-model="activeRecords" :border="false">
