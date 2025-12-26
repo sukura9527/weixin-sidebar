@@ -4,7 +4,7 @@
             <van-collapse v-model="activeNames" :border="false">
                 <van-collapse-item name="features">
                     <template #title>
-                        <div class="collapse-title">功能设置</div>
+                        <div class="collapse_title">功能设置</div>
                     </template>
                     <van-cell v-for="item in featureItems" :key="item.key" :title="item.title" :label="item.description"
                         center :border="false">
@@ -12,14 +12,8 @@
                             <van-switch v-model="item.enabled" size="16" active-color="#1989fa" />
                         </template>
                     </van-cell>
-                    <div class="button_group">
-                        <van-button size="small" type="default" @click="resetSettings">重置</van-button>
-                        <van-button size="small" type="primary" @click="saveSettings">确定</van-button>
-                    </div>
                 </van-collapse-item>
             </van-collapse>
-        </van-cell-group>
-        <van-cell-group inset>
             <van-cell v-for="item in localCustomers" :key="item.id" center :border="false">
                 <template #title>
                     <!-- 失焦保存 -->
@@ -36,6 +30,10 @@
                 </template>
             </van-cell>
             <van-icon name="plus" color="#34C759" size="16" style="margin-top: 16px;" @click="addCustomer" />
+            <div class="button_group">
+                <van-button size="small" type="default" @click="resetSettings">重置</van-button>
+                <van-button size="small" type="primary" @click="saveSettings">确定</van-button>
+            </div>
         </van-cell-group>
         <van-cell-group inset style="margin-top: 20px;">
             <!-- 客户选择 -->
@@ -73,7 +71,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { onBeforeUnmount, ref, shallowRef, computed, watch } from 'vue'
+import { onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { showToast, showConfirmDialog } from 'vant';
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
@@ -374,7 +372,7 @@ const handleCreated = (editor: any) => {
         .van-collapse {
             margin-bottom: 16px;
 
-            .collapse-title {
+            .collapse_title {
                 font-weight: bold;
                 font-size: 16px;
             }

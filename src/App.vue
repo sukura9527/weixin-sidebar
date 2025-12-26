@@ -56,7 +56,7 @@ onMounted(async () => {
 .container {
   width: $sidebar-width;
   height: 100vh;
-  box-sizing: border-box;
+  margin: 0 auto;
 
   .loading_container {
     height: 100%;
